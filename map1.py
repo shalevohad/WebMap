@@ -60,7 +60,7 @@ if (os.path.exists(VolcanoesFilepath)):
     <strong>Status:</strong> %s
     """
 
-    fgv = folium.FeatureGroup(name=GroupName)
+    fgv = folium.FeatureGroup(name=GroupName, show=False)
     for i in data.index:
         innerData = dict(data.iloc[i, :])
         iframe = folium.IFrame(
@@ -83,15 +83,17 @@ if (os.path.exists(VolcanoesFilepath)):
 
     map.add_child(fgv)
 
-# israel fires
+# Asia fires
 GroupName = "Fire's in Russia and Asia (24hr)"
 WFfileUrl = "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Russia_Asia_24h.csv"
 WFfilePath = 'WFIsrael.csv'
+WFconfidance = 70
 if(os.path.exists(WFfilePath) == False or os.path.getctime(WFfilePath) <= int(time.time())-86400):
     downloadExternalFile(WFfileUrl, WFfilePath)
 
 if(os.path.exists(WFfilePath)):
     dataWF = pandas.read_csv(WFfilePath)
+    dataWF = dataWF.query('confidence>'+str(WFconfidance))
     dataWF["daynight"] = dataWF["daynight"].apply(
         lambda x: "Night" if x == "N" else "Day")
     html = """<h4>Fire information:</h4>
@@ -101,9 +103,8 @@ if(os.path.exists(WFfilePath)):
     <strong>daynight:</strong> %s
     """
 
-    fgwf = folium.FeatureGroup(name=GroupName, show=False)
-
-    for i in dataWF.index:
+    fgwf = folium.FeatureGroup(name=GroupName)
+    for i in range(len(dataWF)):
         innerWFData = dict(dataWF.iloc[i, :])
         iframe = folium.IFrame(
             html=html % (innerWFData["acq_date"], innerWFData["acq_time"],
@@ -118,8 +119,8 @@ if(os.path.exists(WFfilePath)):
             folium.Marker(
                 location=[innerWFData["latitude"], innerWFData["longitude"]],
                 popup=folium.Popup(iframe, parse_html=True),
-                icon=folium.Icon(color="red", prefix="fa",
-                                 icon="fire-alt"),
+                icon=folium.Icon(color='red', prefix='fa',
+                                 icon="fire-extinguisher")
             )
         )
 
