@@ -93,7 +93,7 @@ if(os.path.exists(WFfilePath) == False or os.path.getctime(WFfilePath) <= int(ti
 
 if(os.path.exists(WFfilePath)):
     dataWF = pandas.read_csv(WFfilePath)
-    dataWF = dataWF.query('confidence>'+str(WFconfidance))
+    dataWF = dataWF[dataWF['confidence'] > WFconfidance]
     dataWF["daynight"] = dataWF["daynight"].apply(
         lambda x: "Night" if x == "N" else "Day")
     html = """<h4>Fire information:</h4>
